@@ -1,0 +1,1888 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="theme-color" content="#000000"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="Cracks"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<title>Cracks</title>
+<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='36' fill='%230a0a0a'/><ellipse cx='96' cy='108' rx='64' ry='30' fill='%23141414' stroke='%23ffb020' stroke-width='5'/><path d='M40 70 L74 122 L96 92 L122 146 L156 58' fill='none' stroke='%23ffb020' stroke-width='8' stroke-linecap='round' stroke-linejoin='round'/></svg>"/>
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='36' fill='%230a0a0a'/><ellipse cx='96' cy='108' rx='64' ry='30' fill='%23141414' stroke='%23ffb020' stroke-width='5'/><path d='M40 70 L74 122 L96 92 L122 146 L156 58' fill='none' stroke='%23ffb020' stroke-width='8' stroke-linecap='round' stroke-linejoin='round'/></svg>"/>
+<style>
+
+:root {
+  --bg: #050505;
+  --bg2: #0c0c0c;
+  --card: #111111;
+  --card2: #161616;
+  --line: #222;
+  --text: #f4f4f4;
+  --muted: #8a8a8a;
+  --dim: #5c5c5c;
+  --live: #e11d2e;
+  --ok: #2fbf71;
+  --warn: #c9a227;
+  --bad: #d14b4b;
+  --safe: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; background: #000; color: var(--text); }
+body {
+  font-family: "Inter", "SF Pro Text", system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+}
+#app {
+  max-width: 430px;
+  margin: 0 auto;
+  height: 100%;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border-left: 1px solid #111;
+  border-right: 1px solid #111;
+}
+header.appbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--line);
+  background: #000;
+  flex-shrink: 0;
+}
+.splash {
+  position: absolute; inset: 0;
+  background: #000;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  overflow: hidden;
+}
+.splash.through {
+  background: transparent;
+  pointer-events: none;
+}
+.splash img {
+  width: 96px; height: 96px;
+  border-radius: 20px;
+  background: #000;
+  border: 1px solid #222;
+  animation: splashPulse 2.5s ease-in-out both;
+  transform-origin: center center;
+}
+.splash.through img {
+  animation: splashThrough 0.3s cubic-bezier(.2,.7,.2,1) forwards;
+  border-color: transparent;
+}
+.splash strong {
+  letter-spacing: 0.28em;
+  font-size: 14px;
+  color: #f4f4f4;
+  animation: splashIn 0.5s ease both;
+}
+.splash.through strong,
+.splash.hide-title strong { opacity: 0; transition: opacity .2s linear; }
+@keyframes splashIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes splashPulse {
+  0% { transform: scale(.82); opacity: 0; }
+  18% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+@keyframes splashThrough {
+  0% { transform: scale(1); opacity: 1; filter: blur(0); }
+  100% { transform: scale(18); opacity: 0; filter: blur(2px); }
+}
+.logo {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  background: #000;
+  border: 1px solid #2a2a2a;
+  object-fit: cover;
+}
+.brand { display: flex; flex-direction: column; }
+.brand strong { font-size: 16px; letter-spacing: 0.18em; font-weight: 700; }
+.brand span { font-size: 10px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
+.header-meta { margin-left: auto; font-size: 11px; color: var(--muted); text-align: right; }
+
+main {
+  flex: 1;
+  overflow: auto;
+  padding: 12px 14px 18px;
+  padding-bottom: calc(86px + var(--safe));
+}
+.tab { display: none; }
+.tab.active { display: block; }
+
+.row { display: flex; align-items: center; gap: 8px; }
+.space { justify-content: space-between; }
+
+h2.sec {
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+  margin: 16px 2px 8px;
+}
+h2.sec:first-child { margin-top: 4px; }
+
+.chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip {
+  flex: 0 0 auto;
+  border: 1px solid #2a2a2a;
+  background: #0e0e0e;
+  color: #cfcfcf;
+  border-radius: 999px;
+  padding: 6px 11px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+.chip.on { background: #fff; color: #000; border-color: #fff; font-weight: 600; }
+
+.match {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+.match.live {
+  padding: 16px 14px;
+  background: linear-gradient(180deg, #141414 0%, #0d0d0d 100%);
+  border-color: #2a1518;
+  box-shadow: inset 0 0 0 1px rgba(225,29,46,0.18);
+}
+.match.finished { opacity: 0.92; }
+.league-tag { font-size: 10px; color: var(--dim); letter-spacing: 0.1em; text-transform: uppercase; }
+.live-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--live); font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+}
+.dot {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--live);
+  box-shadow: 0 0 0 0 rgba(225,29,46,.7);
+  animation: pulse 1.4s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(225,29,46,.55); }
+  70% { box-shadow: 0 0 0 8px rgba(225,29,46,0); }
+  100% { box-shadow: 0 0 0 0 rgba(225,29,46,0); }
+}
+.scoreboard { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; margin-top: 8px; }
+.team { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.team.away { justify-content: flex-end; text-align: right; }
+.crest { width: 26px; height: 26px; object-fit: contain; }
+.match.live .crest { width: 34px; height: 34px; }
+.tname { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.match.live .tname { font-size: 15px; }
+.score {
+  font-variant-numeric: tabular-nums;
+  font-weight: 750;
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  min-width: 64px;
+  text-align: center;
+}
+.match.live .score { font-size: 32px; min-width: 84px; }
+.clock { text-align: center; font-size: 11px; color: var(--muted); margin-top: 2px; }
+.match.live .clock { color: var(--live); font-weight: 700; font-size: 12px; }
+.events { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
+.ev {
+  font-size: 12px; color: #c8c8c8;
+  display: flex; gap: 8px; align-items: baseline;
+}
+.ev b { color: #fff; font-weight: 600; }
+.ev .min { color: var(--dim); width: 34px; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.empty { color: var(--muted); font-size: 13px; padding: 28px 8px; text-align: center; }
+
+.search {
+  width: 100%;
+  background: #0e0e0e;
+  border: 1px solid #262626;
+  color: #fff;
+  border-radius: 12px;
+  padding: 11px 12px;
+  font-size: 14px;
+  outline: none;
+}
+.search:focus { border-color: #444; }
+.player {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 4px; border-bottom: 1px solid #161616;
+}
+.ava {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: #1a1a1a; object-fit: cover; border: 1px solid #2a2a2a;
+}
+.pname { font-size: 14px; font-weight: 600; }
+.pmeta { font-size: 11px; color: var(--muted); }
+.icon-btn, .btn {
+  border: 0; cursor: pointer; font-family: inherit;
+}
+.btn {
+  background: #fff; color: #000; border-radius: 10px;
+  padding: 10px 14px; font-weight: 650; font-size: 13px;
+}
+.btn.ghost { background: transparent; color: #ddd; border: 1px solid #2a2a2a; }
+.btn.red { background: #1a0d0f; color: #f0c9cd; border: 1px solid #3a1c20; }
+.btn.ok { background: #0f1a14; color: #b7ebc9; border: 1px solid #1d3a28; }
+.btn.warn { background: #1a170c; color: #ead9a0; border: 1px solid #3a3418; }
+.btn.full { width: 100%; }
+.btn.sm { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
+.add {
+  margin-left: auto;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: #fff; color: #000; border: 0; font-size: 20px; line-height: 1; cursor: pointer;
+}
+.add.on { background: #1a1a1a; color: #fff; border: 1px solid #333; }
+.add.minus { background: #1a1a1a; color: #eee; border: 1px solid #333; font-size: 22px; }
+.trash {
+  margin-left: auto;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: transparent; color: #c8c8c8;
+  border: 1px solid #2a2a2a; font-size: 15px; line-height: 1;
+  cursor: pointer; padding: 0;
+}
+.trash:active { color: #fff; border-color: #555; }
+.rank {
+  display: grid; grid-template-columns: 28px minmax(0, 1fr) auto;
+  gap: 10px; align-items: center;
+  padding: 10px 2px; border-bottom: 1px solid #161616;
+}
+.rank .pname, .rank .pmeta {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pos { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.ga { text-align: right; }
+.ga b { font-size: 16px; color: #ffb020; }
+.ga span { display: block; font-size: 10px; color: var(--muted); }
+
+.stats-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px;
+}
+.stat {
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 10px;
+}
+.stat .n { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stat .l { font-size: 10px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 4px; }
+.stat.pos .n { color: var(--ok); }
+.stat.neg .n { color: var(--bad); }
+
+.form { display: flex; flex-direction: column; gap: 8px; margin: 8px 0 14px; }
+label.field { font-size: 11px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+select, input[type="number"], input[type="text"] {
+  width: 100%; background: #0e0e0e; border: 1px solid #262626; color: #fff;
+  border-radius: 12px; padding: 11px 12px; font-size: 14px; outline: none;
+}
+.seg { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+.seg button {
+  background: #0e0e0e; color: #bbb; border: 1px solid #262626;
+  border-radius: 10px; padding: 10px 6px; font-size: 12px; cursor: pointer;
+}
+.seg button.on { background: #fff; color: #000; border-color: #fff; font-weight: 650; }
+
+.bet {
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+  padding: 12px; margin-bottom: 8px;
+}
+.bet-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.status {
+  font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 7px; border-radius: 999px; border: 1px solid #333; color: var(--muted);
+}
+.status.open { color: #ddd; }
+.status.won { color: var(--ok); border-color: #1d3a28; }
+.status.lost { color: var(--bad); border-color: #3a1c20; }
+.status.cancelled, .status.refunded { color: var(--warn); border-color: #3a3418; }
+.actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.decisif { margin-top: 6px; font-size: 12px; color: #cfcfcf; }
+.decisif li { margin: 4px 0; }
+
+nav.tabs {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  background: #000;
+  border-top: 1px solid #1c1c1c;
+  padding: 8px 6px calc(10px + var(--safe));
+}
+nav.tabs button {
+  background: none; border: 0; color: #666; font-size: 10px; letter-spacing: 0.08em;
+  text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  cursor: pointer; font-weight: 600;
+}
+nav.tabs button svg { width: 20px; height: 20px; }
+nav.tabs button.on { color: #fff; }
+.lg-ico { width: 16px; height: 16px; object-fit: contain; vertical-align: -3px; }
+.chip .lg-ico { width: 18px; height: 18px; vertical-align: -4px; }
+.league-tag { letter-spacing: 0; }
+
+
+article.match { cursor: pointer; }
+.back {
+  border: 1px solid #2a2a2a; background: #0e0e0e; color: #fff;
+  border-radius: 999px; padding: 6px 12px; font-size: 12px; margin-bottom: 10px; cursor: pointer;
+}
+.stat-table { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 8px 12px; }
+.stat-row {
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  gap: 8px; align-items: center;
+  padding: 8px 0; border-bottom: 1px solid #1a1a1a;
+  font-size: 13px;
+}
+.stat-row:last-child { border-bottom: 0; }
+.stat-row span { color: var(--muted); text-align: center; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.stat-row b:first-child { text-align: left; }
+.stat-row b:last-child { text-align: right; }
+.xi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.xi-col { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 10px; }
+.xi-p { display: flex; gap: 8px; font-size: 12px; margin-top: 4px; }
+.xi-p.fav-hit b { color: #ffb020; font-weight: 700; }
+.xi-p .min { width: 20px; color: var(--dim); }
+
+
+.date-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.date-nav button {
+  width: 32px; height: 32px; border-radius: 50%; border: 1px solid #2a2a2a;
+  background: #0e0e0e; color: #fff; cursor: pointer;
+}
+.date-label { font-size: 13px; font-weight: 600; }
+
+.toast {
+  position: absolute; left: 16px; right: 16px; bottom: calc(78px + var(--safe));
+  background: #fff; color: #000; border-radius: 10px; padding: 10px 12px;
+  font-size: 13px; font-weight: 600; display: none; text-align: center;
+}
+.modal-bg {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,.72);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 40; padding: 20px;
+}
+.modal-bg[hidden] { display: none; }
+.modal {
+  width: 100%; max-width: 320px;
+  background: #111;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  padding: 18px 16px 14px;
+}
+.modal-txt {
+  margin: 0 0 16px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: center;
+  color: #f4f4f4;
+}
+.modal-actions { display: flex; gap: 8px; }
+.modal-actions .btn { flex: 1; }
+.btn {
+  border: 0; border-radius: 10px; padding: 10px 12px;
+  font-size: 14px; font-weight: 650; cursor: pointer;
+  background: #fff; color: #000;
+}
+.btn.ghost {
+  background: #1a1a1a; color: #eee; border: 1px solid #2a2a2a;
+}
+.tk-ok { position:absolute; top:10px; right:42px; font-size:14px; }
+.vol-row { display:flex; align-items:center; gap:10px; margin-top:10px; font-size:12px; color:var(--muted); }
+.vol-row input { flex:1; accent-color:#ffb020; }
+.vol-row b { color:#fff; width:28px; text-align:right; }
+.lg-fold {
+  width: 100%; display: flex; justify-content: space-between; align-items: center;
+  background: transparent; border: 0; color: #eee; font-size: 13px; padding: 0; cursor: pointer;
+}
+.lg-fold span:last-child { color: var(--muted); font-size: 12px; }
+.chips.wrap { flex-wrap: wrap; overflow: visible; }
+.backup-box {
+  width: 100%; margin-top: 10px; box-sizing: border-box;
+  background: #0a0a0a; color: #ddd; border: 1px solid #2a2a2a;
+  border-radius: 10px; padding: 10px; font-size: 11px;
+  font-family: ui-monospace, monospace; min-height: 88px;
+}
+.loading { color: var(--muted); font-size: 12px; text-align: center; padding: 16px; }
+
+.fav-hit {
+  color: #ffb020;
+  font-weight: 700;
+}
+.ev .assist { color: #c8c8c8; font-weight: 500; }
+.ev .assist .fav-hit { color: #ffb020; }
+
+.match { position: relative; overflow: hidden; }
+.star {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.85;
+  z-index: 3;
+  padding: 0;
+  -webkit-text-stroke: 0;
+}
+.star.on { color: #ffd000; opacity: 1; text-shadow: 0 0 8px rgba(255,208,0,.45); }
+.st-ht, .st-fin {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+.st-ht { color: #ffb020; }
+.st-fin { color: #9a9a9a; }
+.match.ht .clock { color: #ffb020; font-weight: 700; }
+.match.finished .clock { color: #9a9a9a; font-weight: 700; }
+.match.goal-flash > *:not(.buuut) { opacity: 0.1; }
+.match.goal-flash .buuut.fav { color: #ffb020; }
+.buuut.name { font-size: 28px; letter-spacing: 0.04em; text-align: center; padding: 0 12px; }
+.buuut { opacity: 1; }
+.buuut.fav { color: #ffb020; }
+.buuut.name { font-size: 28px; letter-spacing: 0.04em; text-align: center; padding: 0 12px; }
+.buuut {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 42px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: #fff;
+  z-index: 4;
+  pointer-events: none;
+  animation: buuutBlink 0.35s step-end infinite;
+}
+@keyframes buuutBlink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.chips.wrap { flex-wrap: wrap; }
+
+.toggle {
+  flex-shrink: 0;
+  min-width: 52px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid #333;
+  background: #1a1a1a;
+  color: #888;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.toggle.on {
+  background: #ffd000;
+  border-color: #ffd000;
+  color: #111;
+}
+nav.tabs button { flex: 1; min-width: 0; }
+
+.events.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  margin-top: 10px;
+}
+.evcol { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.evcol.away { align-items: flex-end; text-align: right; }
+.ev.home, .ev.away { width: 100%; }
+.ev.away { justify-content: flex-end; }
+.ev .evname { min-width: 0; }
+.ev.away .min { width: 34px; text-align: right; }
+
+.bet-leg {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #c8c8c8;
+}
+.bet-leg span { min-width: 0; }
+
+.analyse-card { margin-bottom: 10px; }
+.an-bars { margin-top: 10px; display: flex; flex-direction: column; gap: 5px; }
+.an-row { display: grid; grid-template-columns: 16px 1fr 44px; gap: 8px; align-items: center; font-size: 11px; color: var(--muted); }
+.an-row b { text-align: right; color: #fff; font-size: 12px; }
+.bar { height: 7px; background: #1b1b1b; border-radius: 99px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: #ffd000; border-radius: 99px; }
+.watch { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.watch-p { background: #161616; border: 1px solid #222; border-radius: 10px; padding: 8px; }
+.watch-p b { display: block; font-size: 13px; }
+.watch-p span { font-size: 11px; color: var(--muted); }
+
+.xi {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #ffd000;
+  font-weight: 600;
+}
+
+.analyse-card .scoreboard { align-items: start; }
+.analyse-card .team {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.analyse-card .team.away { align-items: flex-end; }
+.form-boxes { display: flex; gap: 3px; margin-top: 2px; justify-content: flex-start; }
+.team.away .form-boxes { justify-content: flex-end; }
+.fb {
+  width: 16px; height: 16px; border-radius: 3px;
+  font-size: 9px; font-weight: 800; font-style: normal;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #fff;
+}
+.fb.w { background: #1f8a3b; }
+.fb.n { background: #6b6b6b; }
+.fb.l { background: #c43c3c; }
+
+.badge-play {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: #ffd000;
+  color: #111;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+}
+
+.logo { background:#000; border-color:#111; }
+.match-head { padding-right: 30px; }
+nav.tabs button { font-size: 10px; }
+
+nav.tabs { grid-template-columns: repeat(5, 1fr); }
+.period-tag { font-size: 10px; color: var(--dim); margin-left: 4px; }
+.kind-tag { color: #ffb020; font-weight: 700; font-size: 10px; }
+
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="splash" class="splash">
+    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='36' fill='%230a0a0a'/><ellipse cx='96' cy='108' rx='64' ry='30' fill='%23141414' stroke='%23ffb020' stroke-width='5'/><path d='M40 70 L74 122 L96 92 L122 146 L156 58' fill='none' stroke='%23ffb020' stroke-width='8' stroke-linecap='round' stroke-linejoin='round'/></svg>" alt="Cracks"/>
+    <strong>CRACKS</strong>
+  </div>
+  <header class="appbar">
+    <img class="logo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='36' fill='%230a0a0a'/><ellipse cx='96' cy='108' rx='64' ry='30' fill='%23141414' stroke='%23ffb020' stroke-width='5'/><path d='M40 70 L74 122 L96 92 L122 146 L156 58' fill='none' stroke='%23ffb020' stroke-width='8' stroke-linecap='round' stroke-linejoin='round'/></svg>" alt="C"/>
+    <div class="brand">
+      <strong>CRACKS</strong>
+      <span>Live · Favoris · Classement</span>
+    </div>
+    <div class="header-meta">NHL 2026-27</div>
+  </header>
+  <main id="main"></main>
+  <nav class="tabs">
+    <button data-tab="matches" class="on">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="13" rx="8" ry="4"/><path d="M6 8l4 6 2-3 3 6 4-9"/></svg>
+      Matchs
+    </button>
+    <button data-tab="favs">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3.5l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 16.2 7.2 18.4l.9-5.4L4.2 9.2l5.4-.8z"/></svg>
+      Favoris
+    </button>
+    <button data-tab="bets">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>
+      Paris
+    </button>
+    <button data-tab="rank">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19h16M7 19V9h3v10M14 19V5h3v14"/></svg>
+      Classement
+    </button>
+    <button data-tab="settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9c.3.6.9 1 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      Réglages
+    </button>
+  </nav>
+  <div class="toast" id="toast"></div>
+  <div class="modal-bg" id="confirmBg" hidden>
+    <div class="modal">
+      <p class="modal-txt" id="confirmTxt"></p>
+      <div class="modal-actions">
+        <button type="button" class="btn ghost" id="confirmNo">Non</button>
+        <button type="button" class="btn" id="confirmYes">Oui</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+window.CRACKS = {
+  leagues: [
+    { id: "atl", name: "Atlantique", short: "ATL" },
+    { id: "met", name: "Métropolitaine", short: "MET" },
+    { id: "cen", name: "Centrale", short: "CEN" },
+    { id: "pac", name: "Pacifique", short: "PAC" }
+  ],
+  players: [{"id": "3895074", "name": "Connor McDavid", "team": "Edmonton Oilers", "league": "NHL", "pos": "C"}, {"id": "3114727", "name": "Leon Draisaitl", "team": "Edmonton Oilers", "league": "NHL", "pos": "C"}, {"id": "3041969", "name": "Nathan MacKinnon", "team": "Colorado Avalanche", "league": "NHL", "pos": "C"}, {"id": "4233563", "name": "Cale Makar", "team": "Colorado Avalanche", "league": "NHL", "pos": "D"}, {"id": "4024123", "name": "Auston Matthews", "team": "Toronto Maple Leafs", "league": "NHL", "pos": "C"}, {"id": "3899937", "name": "Mitch Marner", "team": "Vegas Golden Knights", "league": "NHL", "pos": "AD"}, {"id": "3114", "name": "Sidney Crosby", "team": "Pittsburgh Penguins", "league": "NHL", "pos": "C"}, {"id": "2563060", "name": "Nikita Kucherov", "team": "Tampa Bay Lightning", "league": "NHL", "pos": "AD"}, {"id": "3114778", "name": "David Pastrnak", "team": "Boston Bruins", "league": "NHL", "pos": "AD"}, {"id": "3942335", "name": "Kirill Kaprizov", "team": "Minnesota Wild", "league": "NHL", "pos": "AG"}, {"id": "5149125", "name": "Connor Bedard", "team": "Chicago Blackhawks", "league": "NHL", "pos": "C"}, {"id": "4565222", "name": "Jack Hughes", "team": "New Jersey Devils", "league": "NHL", "pos": "C"}, {"id": "4320548", "name": "Quinn Hughes", "team": "Minnesota Wild", "league": "NHL", "pos": "D"}, {"id": "3151297", "name": "Igor Shesterkin", "team": "New York Rangers", "league": "NHL", "pos": "G"}, {"id": "2976847", "name": "Andrei Vasilevskiy", "team": "Tampa Bay Lightning", "league": "NHL", "pos": "G"}, {"id": "3101", "name": "Alex Ovechkin", "team": "Washington Capitals", "league": "NHL", "pos": "AG"}, {"id": "3114736", "name": "William Nylander", "team": "Toronto Maple Leafs", "league": "NHL", "pos": "AD"}, {"id": "4024854", "name": "Matthew Tkachuk", "team": "Florida Panthers", "league": "NHL", "pos": "AD"}, {"id": "4319858", "name": "Brady Tkachuk", "team": "Florida Panthers", "league": "NHL", "pos": "AG"}, {"id": "4233875", "name": "Jason Robertson", "team": "Dallas Stars", "league": "NHL", "pos": "AG"}, {"id": "3899938", "name": "Mikko Rantanen", "team": "Dallas Stars", "league": "NHL", "pos": "AD"}, {"id": "3904183", "name": "Roope Hintz", "team": "Dallas Stars", "league": "NHL", "pos": "C"}, {"id": "3114722", "name": "Sam Reinhart", "team": "Florida Panthers", "league": "NHL", "pos": "C"}, {"id": "3041970", "name": "Aleksander Barkov", "team": "Florida Panthers", "league": "NHL", "pos": "C"}, {"id": "3904173", "name": "Sebastian Aho", "team": "Carolina Hurricanes", "league": "NHL", "pos": "C"}, {"id": "4268771", "name": "Jesper Bratt", "team": "New Jersey Devils", "league": "NHL", "pos": "AG"}, {"id": "4697384", "name": "Tim Stützle", "team": "Ottawa Senators", "league": "NHL", "pos": "C"}, {"id": "4024988", "name": "Tage Thompson", "team": "Buffalo Sabres", "league": "NHL", "pos": "C"}, {"id": "4294163", "name": "Rasmus Dahlin", "team": "Buffalo Sabres", "league": "NHL", "pos": "D"}, {"id": "4565227", "name": "Moritz Seider", "team": "Detroit Red Wings", "league": "NHL", "pos": "D"}, {"id": "4697385", "name": "Lucas Raymond", "team": "Detroit Red Wings", "league": "NHL", "pos": "AD"}, {"id": "3114755", "name": "Dylan Larkin", "team": "Detroit Red Wings", "league": "NHL", "pos": "C"}, {"id": "4024857", "name": "Clayton Keller", "team": "Utah Mammoth", "league": "NHL", "pos": "C"}, {"id": "5080143", "name": "Logan Cooley", "team": "Utah Mammoth", "league": "NHL", "pos": "C"}, {"id": "5206628", "name": "Macklin Celebrini", "team": "San Jose Sharks", "league": "NHL", "pos": "C"}, {"id": "5149155", "name": "Will Smith", "team": "San Jose Sharks", "league": "NHL", "pos": "C"}, {"id": "4915349", "name": "Juraj Slafkovský", "team": "Montreal Canadiens", "league": "NHL", "pos": "AG"}, {"id": "4233594", "name": "Nick Suzuki", "team": "Montreal Canadiens", "league": "NHL", "pos": "C"}, {"id": "4565236", "name": "Cole Caufield", "team": "Montreal Canadiens", "league": "NHL", "pos": "AD"}, {"id": "4197146", "name": "Adam Fox", "team": "New York Rangers", "league": "NHL", "pos": "D"}, {"id": "3891952", "name": "Artemi Panarin", "team": "Los Angeles Kings", "league": "NHL", "pos": "AG"}, {"id": "2563036", "name": "Vincent Trocheck", "team": "Utah Mammoth", "league": "NHL", "pos": "C"}, {"id": "2968772", "name": "Filip Forsberg", "team": "Nashville Predators", "league": "NHL", "pos": "AG"}, {"id": "5436", "name": "Roman Josi", "team": "Nashville Predators", "league": "NHL", "pos": "D"}, {"id": "3899952", "name": "Kyle Connor", "team": "Winnipeg Jets", "league": "NHL", "pos": "AG"}, {"id": "2562632", "name": "Mark Scheifele", "team": "Winnipeg Jets", "league": "NHL", "pos": "C"}, {"id": "3020225", "name": "Connor Hellebuyck", "team": "Winnipeg Jets", "league": "NHL", "pos": "G"}, {"id": "4196914", "name": "Jake Oettinger", "team": "Dallas Stars", "league": "NHL", "pos": "G"}, {"id": "4233536", "name": "Miro Heiskanen", "team": "Dallas Stars", "league": "NHL", "pos": "D"}, {"id": "4874740", "name": "Wyatt Johnston", "team": "Dallas Stars", "league": "NHL", "pos": "C"}, {"id": "5149170", "name": "Matvei Michkov", "team": "Philadelphia Flyers", "league": "NHL", "pos": "AD"}, {"id": "3900169", "name": "Travis Konecny", "team": "Philadelphia Flyers", "league": "NHL", "pos": "AD"}, {"id": "3648002", "name": "Jack Eichel", "team": "Vegas Golden Knights", "league": "NHL", "pos": "C"}, {"id": "5545", "name": "Mark Stone", "team": "Vegas Golden Knights", "league": "NHL", "pos": "AD"}, {"id": "4874721", "name": "William Eklund", "team": "Ottawa Senators", "league": "NHL", "pos": "AG"}, {"id": "5238086", "name": "Elias Pettersson", "team": "Vancouver Canucks", "league": "NHL", "pos": "C"}, {"id": "3096217", "name": "Thatcher Demko", "team": "Vancouver Canucks", "league": "NHL", "pos": "G"}, {"id": "3183", "name": "Anže Kopitar", "team": "Los Angeles Kings", "league": "NHL", "pos": "C"}, {"id": "3114802", "name": "Adrian Kempe", "team": "Los Angeles Kings", "league": "NHL", "pos": "AD"}, {"id": "4233586", "name": "Martin Nečas", "team": "Colorado Avalanche", "league": "NHL", "pos": "C"}, {"id": "4697396", "name": "Seth Jarvis", "team": "Carolina Hurricanes", "league": "NHL", "pos": "C"}, {"id": "3151187", "name": "Brayden Point", "team": "Tampa Bay Lightning", "league": "NHL", "pos": "C"}, {"id": "5157", "name": "Victor Hedman", "team": "Tampa Bay Lightning", "league": "NHL", "pos": "D"}, {"id": "3042083", "name": "Jake Guentzel", "team": "Tampa Bay Lightning", "league": "NHL", "pos": "AG"}, {"id": "5164", "name": "Erik Karlsson", "team": "Pittsburgh Penguins", "league": "NHL", "pos": "D"}, {"id": "5080230", "name": "Lane Hutson", "team": "Montreal Canadiens", "league": "NHL", "pos": "D"}, {"id": "4781556", "name": "Owen Power", "team": "Buffalo Sabres", "league": "NHL", "pos": "D"}, {"id": "3899972", "name": "Zach Werenski", "team": "Columbus Blue Jackets", "league": "NHL", "pos": "D"}, {"id": "4587996", "name": "Kirill Marchenko", "team": "Toronto Maple Leafs", "league": "NHL", "pos": "AD"}, {"id": "3899946", "name": "Mathew Barzal", "team": "New York Islanders", "league": "NHL", "pos": "C"}, {"id": "3042002", "name": "Bo Horvat", "team": "New York Islanders", "league": "NHL", "pos": "C"}, {"id": "4352732", "name": "Noah Dobson", "team": "Montreal Canadiens", "league": "NHL", "pos": "D"}, {"id": "5118", "name": "John Carlson", "team": "Tampa Bay Lightning", "league": "NHL", "pos": "D"}, {"id": "2970615", "name": "Tom Wilson", "team": "Washington Capitals", "league": "NHL", "pos": "AD"}, {"id": "3124", "name": "Evgeni Malkin", "team": "Pittsburgh Penguins", "league": "NHL", "pos": "C"}, {"id": "4697386", "name": "Jake Sanderson", "team": "Ottawa Senators", "league": "NHL", "pos": "D"}, {"id": "5080144", "name": "Shane Wright", "team": "Seattle Kraken", "league": "NHL", "pos": "C"}, {"id": "4781553", "name": "Kent Johnson", "team": "Columbus Blue Jackets", "league": "NHL", "pos": "C"}, {"id": "5136617", "name": "Adam Fantilli", "team": "Columbus Blue Jackets", "league": "NHL", "pos": "C"}, {"id": "5149153", "name": "Leo Carlsson", "team": "Anaheim Ducks", "league": "NHL", "pos": "C"}, {"id": "4565230", "name": "Trevor Zegras", "team": "Philadelphia Flyers", "league": "NHL", "pos": "C"}, {"id": "4874718", "name": "Mason McTavish", "team": "St. Louis Blues", "league": "NHL", "pos": "C"}, {"id": "5080157", "name": "Frank Nazar", "team": "Chicago Blackhawks", "league": "NHL", "pos": "C"}, {"id": "4565233", "name": "Matt Boldy", "team": "Minnesota Wild", "league": "NHL", "pos": "AD"}, {"id": "3904091", "name": "Joel Eriksson Ek", "team": "Minnesota Wild", "league": "NHL", "pos": "C"}, {"id": "3899979", "name": "Brock Boeser", "team": "Vancouver Canucks", "league": "NHL", "pos": "AD"}, {"id": "2590852", "name": "J.T. Miller", "team": "New York Rangers", "league": "NHL", "pos": "C"}, {"id": "3041994", "name": "Elias Lindholm", "team": "Boston Bruins", "league": "NHL", "pos": "C"}, {"id": "5349", "name": "Nazem Kadri", "team": "Colorado Avalanche", "league": "NHL", "pos": "C"}, {"id": "2562606", "name": "Jonathan Huberdeau", "team": "Calgary Flames", "league": "NHL", "pos": "AG"}, {"id": "5037", "name": "Steven Stamkos", "team": "Nashville Predators", "league": "NHL", "pos": "C"}, {"id": "3852", "name": "Brad Marchand", "team": "Florida Panthers", "league": "NHL", "pos": "AG"}, {"id": "3988803", "name": "Charlie McAvoy", "team": "Boston Bruins", "league": "NHL", "pos": "D"}, {"id": "4712036", "name": "Jeremy Swayman", "team": "Boston Bruins", "league": "NHL", "pos": "G"}, {"id": "3069285", "name": "Linus Ullmark", "team": "Ottawa Senators", "league": "NHL", "pos": "G"}, {"id": "3042109", "name": "Juuse Saros", "team": "Nashville Predators", "league": "NHL", "pos": "G"}, {"id": "4268767", "name": "Stuart Skinner", "team": "Winnipeg Jets", "league": "NHL", "pos": "G"}]
+};
+
+(() => {
+  const LS_FAV = "cracks_favs";
+  const LS_STATS = "cracks_stats";
+  const LS_MATCH_FAV = "cracks_match_favs";
+  const LS_SETTINGS = "cracks_settings";
+  const LS_HIDE_SUG = "cracks_hide_sug";
+  const LS_TICKETS = "cracks_tickets";
+  const LEAGUES = window.CRACKS.leagues;
+  const CATALOG = window.CRACKS.players;
+
+  const DIV = {
+    "Boston Bruins": "atl", "Buffalo Sabres": "atl", "Detroit Red Wings": "atl", "Florida Panthers": "atl",
+    "Montreal Canadiens": "atl", "Montréal Canadiens": "atl", "Ottawa Senators": "atl", "Tampa Bay Lightning": "atl", "Toronto Maple Leafs": "atl",
+    "Carolina Hurricanes": "met", "Columbus Blue Jackets": "met", "New Jersey Devils": "met", "New York Islanders": "met",
+    "New York Rangers": "met", "Philadelphia Flyers": "met", "Pittsburgh Penguins": "met", "Washington Capitals": "met",
+    "Chicago Blackhawks": "cen", "Colorado Avalanche": "cen", "Dallas Stars": "cen", "Minnesota Wild": "cen",
+    "Nashville Predators": "cen", "St. Louis Blues": "cen", "Utah Hockey Club": "cen", "Utah Mammoth": "cen", "Winnipeg Jets": "cen",
+    "Anaheim Ducks": "cen", "Calgary Flames": "pac", "Edmonton Oilers": "pac", "Los Angeles Kings": "pac",
+    "San Jose Sharks": "pac", "Seattle Kraken": "pac", "Vancouver Canucks": "pac", "Vegas Golden Knights": "pac"
+  };
+  DIV["Anaheim Ducks"] = "pac";
+
+  const state = {
+    tab: "matches",
+    date: new Date(),
+    league: "all",
+    matches: [],
+    loading: false,
+    q: "",
+    searchRemote: [],
+    betMarket: "1",
+    betMatch: "",
+    lineups: {},
+    scoreSnap: {},
+    goalUntil: {},
+    goalScorer: {},
+    goalFavHit: {},
+    rankSort: "ga",
+    detailId: null,
+    detail: {},
+    hotPlayers: [],
+    notifDone: {},
+    lgOpen: false,
+    demoFavNames: []
+  };
+
+  const $ = (s, r = document) => r.querySelector(s);
+  const main = $("#main");
+
+  function loadJson(key, fallback) {
+    try { return JSON.parse(localStorage.getItem(key)) || fallback; }
+    catch { return fallback; }
+  }
+  function saveJson(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+  function favs() { return loadJson(LS_FAV, []); }
+  function cachedStats() {
+    const raw = loadJson(LS_STATS, {});
+    if (raw && raw._v === 1) return raw;
+    saveJson(LS_STATS, { _v: 1 });
+    return { _v: 1 };
+  }
+  function getSettings() {
+    const s = loadJson(LS_SETTINGS, {});
+    return {
+      vibrateGoals: s.vibrateGoals !== false,
+      flagsLeagues: !!s.flagsLeagues,
+      enabledLeagues: Array.isArray(s.enabledLeagues) ? s.enabledLeagues : null,
+      notifFavGoals: !!s.notifFavGoals,
+      soundGoals: !!s.soundGoals,
+      soundVol: Number.isFinite(Number(s.soundVol)) ? Number(s.soundVol) : 70,
+      buuutOrangeFav: !!s.buuutOrangeFav,
+      buuutShowScorer: !!s.buuutShowScorer,
+    };
+  }
+  function setSetting(key, val) {
+    const s = loadJson(LS_SETTINGS, {});
+    s[key] = val;
+    saveJson(LS_SETTINGS, s);
+  }
+  function activeLeagues() {
+    const ids = getSettings().enabledLeagues;
+    if (!ids || !ids.length) return LEAGUES.slice();
+    const set = new Set(ids.map(String));
+    const on = LEAGUES.filter((l) => set.has(l.id));
+    return on.length ? on : LEAGUES.slice();
+  }
+  function toast(msg) {
+    const el = $("#toast");
+    el.textContent = msg;
+    el.style.display = "block";
+    setTimeout(() => { el.style.display = "none"; }, 1800);
+  }
+  function ymd(d) {
+    const x = new Date(d);
+    return `${x.getFullYear()}${String(x.getMonth()+1).padStart(2,"0")}${String(x.getDate()).padStart(2,"0")}`;
+  }
+  function prettyDate(d) {
+    return new Intl.DateTimeFormat("fr-FR", { weekday: "short", day: "numeric", month: "short" }).format(d);
+  }
+  function kickoff(iso) {
+    return new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
+  }
+  function euro(n) {
+    const v = Number(n) || 0;
+    return v.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+  }
+  function fold(s) {
+    return String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+  function escapeAttr(s) { return String(s ?? "").split(String.fromCharCode(34)).join("&" + "quot;"); }
+  function divOf(name) { return DIV[name] || ""; }
+  function divName(id) { return (LEAGUES.find((l) => l.id === id) || {}).name || ""; }
+  function leagueMark(id, fallback) {
+    if (!getSettings().flagsLeagues) return fallback || "";
+    const map = { atl: "ATL", met: "MET", cen: "CEN", pac: "PAC" };
+    return map[id] || fallback || "";
+  }
+  function leagueLabel(l) { return leagueMark(l.id, l.short || l.name || ""); }
+  function matchLeagueLabel(m) {
+    const bits = [divName(divOf(m.home.name)), divName(divOf(m.away.name))].filter(Boolean);
+    const uniq = [...new Set(bits)];
+    const label = uniq.length === 1 ? uniq[0] : (uniq.join(" · ") || "NHL");
+    if (!getSettings().flagsLeagues) return label;
+    const ids = [divOf(m.home.name), divOf(m.away.name)].filter(Boolean);
+    const shorts = [...new Set(ids.map((id) => leagueMark(id, id.toUpperCase())))];
+    return shorts.join(" · ") || "NHL";
+  }
+
+  async function fetchJSON(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("http " + res.status);
+    return res.json();
+  }
+
+  function periodLabel(n, detail) {
+    const d = String(detail || "");
+    if (/SO|shootout/i.test(d) || n >= 5) return "TB";
+    if (/OT|overtime/i.test(d) || n === 4) return "Prol.";
+    if (n === 1) return "1er";
+    if (n === 2) return "2e";
+    if (n === 3) return "3e";
+    return n ? ("P" + n) : "";
+  }
+  function parseMatch(event) {
+    const comp = (event.competitions || [])[0] || {};
+    const status = (comp.status || event.status || {}).type || {};
+    const stObj = comp.status || event.status || {};
+    const clock = stObj.displayClock || "";
+    const period = stObj.period || 0;
+    const competitors = comp.competitors || [];
+    const home = competitors.find((c) => c.homeAway === "home") || competitors[1] || {};
+    const away = competitors.find((c) => c.homeAway === "away") || competitors[0] || {};
+    const stateName = status.state || "";
+    const statusBlob = [status.name, status.description, status.detail, status.shortDetail, status.altDetail].filter(Boolean).join(" ");
+    const isDone = !!(status.completed || stateName === "post" || /STATUS_FINAL|FINAL/i.test(statusBlob));
+    const isBreak = !isDone && /END_PERIOD|INTERMISSION|END OF|ENTRACTE/i.test(statusBlob);
+    const isLive = !isDone && (isBreak || stateName === "in" || /LIVE|IN_PROGRESS|PERIOD/i.test(status.name || ""));
+    const side = (c) => ({
+      id: String((c.team || {}).id || ""),
+      name: (c.team || {}).displayName || (c.team || {}).name || "?",
+      full: (c.team || {}).displayName || "",
+      score: c.score != null && c.score !== "" ? c.score : (isLive || isDone ? 0 : ""),
+      logo: (c.team || {}).logo || "",
+      record: ((c.records || []).find((r) => r.type === "ytd") || c.records?.[0] || {}).summary || "",
+      form: ""
+    });
+    let clockTxt = kickoff(event.date);
+    if (isDone) {
+      clockTxt = /SO|shootout/i.test(statusBlob) ? "FIN/TB" : /OT|overtime/i.test(statusBlob) ? "FIN/Prol." : "FIN";
+    } else if (isBreak) {
+      clockTxt = "ENT";
+    } else if (isLive) {
+      const per = periodLabel(period, statusBlob);
+      clockTxt = [clock && clock !== "0:00" ? clock : "", per].filter(Boolean).join(" ") || status.shortDetail || "LIVE";
+    }
+    return {
+      id: event.id,
+      leagueId: "nhl",
+      league: "NHL",
+      date: event.date,
+      isLive,
+      isHT: isBreak,
+      isDone,
+      clock: clockTxt,
+      period,
+      statusBlob,
+      home: side(home),
+      away: side(away),
+      scorers: []
+    };
+  }
+
+  function goalKind(play) {
+    const text = play.text || "";
+    const str = ((play.strength || {}).abbreviation || "") + " " + ((play.strength || {}).text || "");
+    const per = (play.period || {}).number || 0;
+    if (per >= 5 || /shootout/i.test(text)) return "so";
+    if (/empty net/i.test(text)) return "en";
+    if (/penalty shot/i.test(text)) return "ps";
+    if (/short/i.test(str)) return "sh";
+    if (/power/i.test(str)) return "pp";
+    return "but";
+  }
+  function applyPlays(m, plays) {
+    const goals = (plays || []).filter((p) => p.scoringPlay && /goal/i.test((p.type || {}).text || p.text || ""));
+    if (!goals.length) return;
+    m.scorers = goals.map((p) => {
+      const parts = p.participants || [];
+      const scorer = parts.find((x) => x.type === "scorer") || parts[0] || {};
+      const assists = parts.filter((x) => x.type === "assister");
+      const per = (p.period || {}).number || 0;
+      const clk = (p.clock || {}).displayValue || "";
+      return {
+        minute: [clk, periodLabel(per, "")].filter(Boolean).join(" "),
+        period: per,
+        kind: goalKind(p),
+        scorer: (scorer.athlete || {}).displayName || "?",
+        scorerId: String((scorer.athlete || {}).id || ""),
+        assist: (assists[0] && assists[0].athlete && assists[0].athlete.displayName) || "",
+        assistId: assists[0] ? String(assists[0].athlete.id || "") : "",
+        assist2: (assists[1] && assists[1].athlete && assists[1].athlete.displayName) || "",
+        assist2Id: assists[1] ? String(assists[1].athlete.id || "") : "",
+        teamId: String((p.team || {}).id || ""),
+      };
+    });
+  }
+  async function enrichScoring(matches) {
+    const need = matches.filter((m) => m.isLive || m.isDone);
+    await Promise.allSettled(need.map(async (m) => {
+      try {
+        const d = await fetchJSON("https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/summary?event=" + m.id);
+        applyPlays(m, d.plays || []);
+        const teams = ((d.boxscore || {}).teams) || [];
+        const statMap = {};
+        teams.forEach((t) => {
+          const id = String((t.team || {}).id || "");
+          const bag = {};
+          (t.statistics || []).forEach((s) => { bag[s.name] = s.displayValue; });
+          statMap[id] = bag;
+        });
+        m._teamStats = statMap;
+      } catch (e) {}
+    }));
+  }
+  function dressed(side) {
+    const players = [];
+    ((side && side.statistics) || []).forEach((block) => {
+      const role = block.name || "";
+      if (role === "skaters") return;
+      (block.athletes || []).forEach((row) => {
+        const a = row.athlete || {};
+        if (a.scratched) return;
+        players.push({
+          id: String(a.id || ""),
+          name: a.displayName || "",
+          jersey: a.jersey || "",
+          starter: true,
+          pos: (a.position || {}).abbreviation || role
+        });
+      });
+    });
+    return players;
+  }
+  async function enrichLineups(matches) {
+    const need = matches.filter((m) => !m.isDone).slice(0, 16);
+    await Promise.allSettled(need.map(async (m) => {
+      try {
+        const d = await fetchJSON("https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/summary?event=" + m.id);
+        const starters = [];
+        (((d.boxscore || {}).players) || []).forEach((side) => {
+          dressed(side).forEach((p) => starters.push(p));
+        });
+        if (starters.length) {
+          m.starters = starters;
+          state.lineups[m.id] = starters;
+        }
+      } catch (e) {}
+    }));
+  }
+  function starterNote(m) {
+    if (m.isLive || m.isDone || m.isHT) return "";
+    if (!m.starters || !m.starters.length) return "";
+    const mine = favs();
+    const hits = [];
+    const seen = new Set();
+    m.starters.forEach((s) => {
+      const hit = mine.find((p) => String(p.id) === String(s.id) || (p.name && s.name && fold(p.name) === fold(s.name)));
+      if (hit && !seen.has(String(hit.id))) { seen.add(String(hit.id)); hits.push(hit.name); }
+    });
+    if (!hits.length) return "";
+    if (hits.length === 1) return hits[0] + " est dans la formation";
+    if (hits.length === 2) return hits[0] + " et " + hits[1] + " sont dans la formation";
+    return hits.slice(0, -1).join(", ") + " et " + hits[hits.length - 1] + " sont dans la formation";
+  }
+  function keepScroll(fn) {
+    const y = main.scrollTop;
+    fn();
+    main.scrollTop = y;
+  }
+  function gameVisible(m) {
+    const pool = activeLeagues().map((l) => l.id);
+    const dh = divOf(m.home.name);
+    const da = divOf(m.away.name);
+    if (dh && da && !pool.includes(dh) && !pool.includes(da)) return false;
+    if (state.league === "all") return true;
+    return dh === state.league || da === state.league;
+  }
+  async function loadMatches(opts = {}) {
+    const silent = !!opts.silent;
+    if (!silent) { state.loading = true; render(); }
+    const date = ymd(state.date);
+    let matches = [];
+    try {
+      const d = await fetchJSON("https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard?dates=" + date + "&limit=80");
+      matches = (d.events || []).map(parseMatch);
+    } catch (e) { matches = []; }
+    matches = matches.filter(gameVisible);
+    await enrichScoring(matches);
+    await enrichLineups(matches);
+    state.matches = matches.sort((a, b) => new Date(a.date) - new Date(b.date));
+    state.loading = false;
+    try { detectGoals(state.matches); } catch (e) {}
+    try { settleTickets(state.matches); } catch (e) {}
+    if (state.tab === "matches" || state.tab === "bets" || !silent) render();
+  }
+  async function loadMatchDetail(m) {
+    state.detail[m.id] = { loading: true };
+    render();
+    const info = { loading: false };
+    try {
+      const d = await fetchJSON("https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/summary?event=" + m.id);
+      applyPlays(m, d.plays || []);
+      const teams = ((d.boxscore || {}).teams) || [];
+      teams.forEach((t) => {
+        const bag = {};
+        (t.statistics || []).forEach((s) => { bag[s.name] = s.displayValue; });
+        const block = {
+          shots: bag.shotsTotal || "—",
+          hits: bag.hits || "—",
+          blocked: bag.blockedShots || "—",
+          pp: (bag.powerPlayGoals || "0") + "/" + (bag.powerPlayOpportunities || "0"),
+        };
+        if (t.homeAway === "home") info.home = block;
+        else info.away = block;
+      });
+      (((d.boxscore || {}).players) || []).forEach((side) => {
+        const block = { name: (side.team || {}).shortDisplayName || (side.team || {}).displayName || "", formation: "", players: dressed(side) };
+        if (String((side.team || {}).id) === String(m.home.id)) info.homeXi = block;
+        else info.awayXi = block;
+      });
+    } catch (e) {}
+    state.detail[m.id] = info;
+    if (String(state.detailId) === String(m.id)) render();
+  }
+
+  function isFavPlayer(id, name) {
+    const list = favs();
+    const sid = String(id || "");
+    const n = fold(name);
+    if ((state.demoFavNames || []).some((x) => n && fold(x) === n)) return true;
+    return list.some((p) => {
+      if (sid && String(p.id) === sid) return true;
+      const pn = fold(p.name);
+      return n && pn && (pn === n || pn.includes(n) || n.includes(pn));
+    });
+  }
+  function markFav(name, id) {
+    const safe = String(name || "").replace(/</g, "");
+    if (!safe) return "";
+    return isFavPlayer(id, safe) ? `<span class="fav-hit">${safe}</span>` : safe;
+  }
+  function kindTag(s) {
+    if (s.kind === "pp") return ` <span class="kind-tag">SN</span>`;
+    if (s.kind === "sh") return ` <span class="kind-tag">IN</span>`;
+    if (s.kind === "en") return ` <span class="kind-tag">CF</span>`;
+    if (s.kind === "ps") return ` <span class="kind-tag">TP</span>`;
+    if (s.kind === "so") return ` <span class="kind-tag">TB</span>`;
+    return "";
+  }
+  function scorerLine(s, side) {
+    const scorer = markFav(s.scorer, s.scorerId);
+    const assists = [s.assist, s.assist2].filter(Boolean);
+    const assist = assists.length
+      ? ` <span class="assist">(${[markFav(s.assist, s.assistId), s.assist2 ? markFav(s.assist2, s.assist2Id) : ""].filter(Boolean).join(", ")})</span>`
+      : "";
+    const min = `<span class="min">${s.minute}</span>`;
+    const name = `<span class="evname"><b>${scorer}</b>${kindTag(s)}${assist}</span>`;
+    return side === "away"
+      ? `<div class="ev away">${name}${min}</div>`
+      : `<div class="ev home">${min}${name}</div>`;
+  }
+  function scorerSide(m, s) {
+    const tid = String(s.teamId || "");
+    if (tid && m.home.id && tid === String(m.home.id)) return "home";
+    if (tid && m.away.id && tid === String(m.away.id)) return "away";
+    return "home";
+  }
+  function statusBadge(m) {
+    if (m.isDone) return `<span class="st-fin">${m.clock || "FIN"}</span>`;
+    if (m.isHT) return `<span class="st-ht">ENT</span>`;
+    if (m.isLive) return `<span class="live-pill"><span class="dot"></span>${m.clock || "LIVE"}</span>`;
+    return `<span class="league-tag">${m.clock}</span>`;
+  }
+  function matchFavs() { return loadJson(LS_MATCH_FAV, []); }
+  function isMatchFav(id) { return matchFavs().includes(String(id)); }
+  function toggleMatchFav(id) {
+    id = String(id);
+    let list = matchFavs();
+    if (list.includes(id)) list = list.filter((x) => x !== id);
+    else list.unshift(id);
+    saveJson(LS_MATCH_FAV, list);
+    keepScroll(() => render());
+  }
+  function tickets() { return loadJson(LS_TICKETS, []); }
+  function saveTickets(list) { saveJson(LS_TICKETS, list); }
+  function ticketsFor(mid) { return tickets().filter((x) => String(x.matchId) === String(mid)); }
+  function ticketWonOn(mid) { return ticketsFor(mid).some((x) => x.status === "won"); }
+
+  function matchCard(m) {
+    const homeEv = (m.scorers || []).filter((s) => scorerSide(m, s) === "home").map((s) => scorerLine(s, "home")).join("");
+    const awayEv = (m.scorers || []).filter((s) => scorerSide(m, s) === "away").map((s) => scorerLine(s, "away")).join("");
+    const events = (homeEv || awayEv)
+      ? `<div class="events split"><div class="evcol">${homeEv}</div><div class="evcol away">${awayEv}</div></div>`
+      : (m.isLive ? `<div class="events"><div class="ev">Pas encore de but</div></div>` : "");
+    const left = (state.goalUntil[m.id] || 0) - Date.now();
+    const flashing = left > 0;
+    const showName = flashing && getSettings().buuutShowScorer && left <= 2500;
+    const buuutTxt = showName ? (state.goalScorer[m.id] || "BUUUT!") : "BUUUT!";
+    const buuutOrange = flashing && getSettings().buuutOrangeFav && state.goalFavHit[m.id];
+    const favOn = isMatchFav(m.id);
+    return `
+      <article class="match ${m.isLive ? "live" : ""} ${m.isDone ? "finished" : ""} ${m.isHT ? "ht" : ""} ${flashing ? "goal-flash" : ""}" data-mid="${m.id}">
+        ${flashing ? `<div class="buuut ${buuutOrange ? "fav" : ""} ${showName ? "name" : ""}">${buuutTxt}</div>` : ""}
+        <button class="star ${favOn ? "on" : ""}" data-star="${m.id}" aria-label="Favori">${favOn ? "★" : "☆"}</button>
+        ${ticketWonOn(m.id) ? `<span class="tk-ok">✅</span>` : ""}
+        <div class="row space match-head"><span class="league-tag">${matchLeagueLabel(m)}</span></div>
+        <div class="scoreboard">
+          <div class="team">
+            ${m.home.logo ? `<img class="crest" src="${m.home.logo}" alt="">` : ""}
+            <span class="tname">${m.home.name}</span>
+          </div>
+          <div>
+            <div class="score">${m.isDone || m.isLive ? `${m.home.score}–${m.away.score}` : "–"}</div>
+            <div class="clock">${statusBadge(m)}</div>
+          </div>
+          <div class="team away">
+            <span class="tname">${m.away.name}</span>
+            ${m.away.logo ? `<img class="crest" src="${m.away.logo}" alt="">` : ""}
+          </div>
+        </div>
+        ${starterNote(m) ? `<div class="xi">${starterNote(m)}</div>` : ""}
+        ${events}
+      </article>`;
+  }
+  function lineupCol(side) {
+    if (!side) return `<div class="pmeta">Formation pas encore publiée</div>`;
+    const xi = side.players || [];
+    const row = (p) => {
+      const mine = (p.id && isFav(p.id)) || favs().some((f) => f.name && p.name && fold(f.name) === fold(p.name));
+      return `<div class="xi-p${mine ? " fav-hit" : ""}"><span class="min">${p.jersey || ""}</span><b>${p.name}</b></div>`;
+    };
+    return `<div class="xi-col"><div class="pname">${side.name || ""}</div>${xi.length ? xi.map(row).join("") : `<div class="pmeta">Pas encore de formation</div>`}</div>`;
+  }
+  function renderMatchDetail(m) {
+    const d = state.detail[m.id] || {};
+    const hs = d.home || {};
+    const as_ = d.away || {};
+    const rows = [
+      ["Tirs", hs.shots || "—", as_.shots || "—"],
+      ["Mises en échec", hs.hits || "—", as_.hits || "—"],
+      ["Tirs bloqués", hs.blocked || "—", as_.blocked || "—"],
+      ["Sup. num.", hs.pp || "—", as_.pp || "—"],
+    ];
+    return `
+      <button class="back" id="backMatches">‹ Matchs</button>
+      ${matchCard(m)}
+      <h2 class="sec">Stats</h2>
+      ${d.loading ? `<div class="loading">Chargement des stats…</div>` : `<div class="stat-table">${rows.map(([l,h,a]) => `<div class="stat-row"><b>${h}</b><span>${l}</span><b>${a}</b></div>`).join("")}</div>`}
+      <h2 class="sec">Formations</h2>
+      ${d.loading ? "" : `<div class="xi-grid">${lineupCol(d.homeXi)}${lineupCol(d.awayXi)}</div>`}
+      <h2 class="sec">Paris</h2>
+      ${ticketsFor(m.id).length ? ticketsFor(m.id).map((tk) => `
+        <div class="player"><div style="min-width:0;flex:1"><div class="pname">${ticketMark(tk)} ${marketLabel(tk.market || tk.pick)}${tk.playerName ? " · "+tk.playerName : ""}${tk.playerName2 ? " / "+tk.playerName2 : ""}</div></div>
+        <button class="trash" data-tkdel="${tk.id}">🗑</button></div>`).join("") : `<div class="pmeta">Aucun pari sur ce match.</div>`}
+    `;
+  }
+  function renderMatches() {
+    if (state.detailId) {
+      const m = state.matches.find((x) => String(x.id) === String(state.detailId));
+      if (m) return renderMatchDetail(m);
+      state.detailId = null;
+    }
+    const starredIds = new Set(matchFavs().map(String));
+    const fav = (m) => starredIds.has(String(m.id));
+    const upcoming = (m) => !m.isLive && !m.isDone;
+    const liveFav = state.matches.filter((m) => m.isLive && fav(m));
+    const live = state.matches.filter((m) => m.isLive && !fav(m));
+    const upFav = state.matches.filter((m) => upcoming(m) && fav(m));
+    const up = state.matches.filter((m) => upcoming(m) && !fav(m));
+    const doneFav = state.matches.filter((m) => m.isDone && fav(m));
+    const done = state.matches.filter((m) => m.isDone && !fav(m));
+    return `
+      <div class="date-nav">
+        <button id="dPrev">‹</button>
+        <div class="date-label">${prettyDate(state.date)}</div>
+        <button id="dNext">›</button>
+      </div>
+      <div class="chips" id="leagueChips">
+        <button class="chip ${state.league === "all" ? "on" : ""}" data-lg="all">Tous</button>
+        ${activeLeagues().map((l) => `<button class="chip ${state.league === l.id ? "on" : ""}" data-lg="${l.id}">${leagueLabel(l)}</button>`).join("")}
+      </div>
+      ${state.loading ? `<div class="loading">Chargement des matchs…</div>` : ""}
+      ${!state.loading && !state.matches.length ? `<div class="empty">Aucun match NHL ce jour.</div>` : ""}
+      ${liveFav.length ? `<h2 class="sec">Favoris · live</h2>` : ""}
+      ${liveFav.map(matchCard).join("")}
+      ${live.length ? `<h2 class="sec">En direct</h2>` : ""}
+      ${live.map(matchCard).join("")}
+      ${upFav.length ? `<h2 class="sec">Favoris · à venir</h2>` : ""}
+      ${upFav.map(matchCard).join("")}
+      ${up.length ? `<h2 class="sec">À venir</h2>` : ""}
+      ${up.map(matchCard).join("")}
+      ${doneFav.length ? `<h2 class="sec">Favoris · terminés</h2>` : ""}
+      ${doneFav.map(matchCard).join("")}
+      ${done.length ? `<h2 class="sec">Terminés</h2>` : ""}
+      ${done.map(matchCard).join("")}
+    `;
+  }
+
+  function isFav(id) { return favs().some((p) => String(p.id) === String(id)); }
+  function catalogSearch(q) {
+    const s = fold(q.trim());
+    if (!s) return [];
+    return CATALOG.filter((p) => fold(`${p.name} ${p.team}`).includes(s));
+  }
+  function clubLine(p) {
+    const team = p.team || "";
+    const div = divName(divOf(team));
+    return [team, div || "NHL"].filter(Boolean).join(" · ");
+  }
+  function teamMatchesPlayer(p, team) {
+    const a = fold(p.team || "");
+    const names = [team && team.name, team && team.full].map((x) => fold(x)).filter(Boolean);
+    return a && names.some((n) => n === a || n.includes(a) || a.includes(n));
+  }
+  function playsToday(p) {
+    return (state.matches || []).some((m) => teamMatchesPlayer(p, m.home) || teamMatchesPlayer(p, m.away));
+  }
+  function playerRow(p, isMine, suggest) {
+    const today = isMine && playsToday(p);
+    return `
+      <div class="player">
+        <div style="min-width:0;flex:1">
+          <div class="pname">${p.name}${today ? ` <span class="badge-play">Joue</span>` : ""}</div>
+          <div class="pmeta">${clubLine(p)}</div>
+        </div>
+        ${isMine
+          ? `<button class="trash" data-rm="${p.id}" aria-label="Supprimer">🗑</button>`
+          : `<div class="row" style="margin-left:auto;gap:6px;flex-shrink:0">
+              ${suggest ? `<button class="add minus" data-hide="${p.id}" aria-label="Masquer">−</button>` : ""}
+              <button class="add ${isFav(p.id) ? "on" : ""}" data-add="${p.id}">${isFav(p.id) ? "✓" : "+"}</button>
+            </div>`}
+      </div>`;
+  }
+  function hotSuggestHtml() {
+    const mine = new Set(favs().map((p) => String(p.id)));
+    const hidden = new Set((loadJson(LS_HIDE_SUG, []) || []).map(String));
+    const list = (state.hotPlayers || []).filter((p) => !mine.has(String(p.id)) && !hidden.has(String(p.id))).slice(0, 5);
+    if (!list.length) return "";
+    return `<h2 class="sec">Suggestions · PTS 2026-27</h2>${list.map((p) => playerRow(p, false, true)).join("")}`;
+  }
+  async function loadHotPlayers() {
+    if (state.hotPlayers && state.hotPlayers.length) return;
+    try {
+      const d = await fetchJSON("https://site.web.api.espn.com/apis/site/v2/sports/hockey/nhl/statistics");
+      const cats = ((d.stats || {}).categories) || [];
+      const bag = {};
+      cats.forEach((cat) => {
+        const kind = /assist/i.test(cat.name || "") ? "a" : cat.name === "goals" ? "g" : cat.name === "points" ? "p" : "";
+        if (!kind) return;
+        (cat.leaders || []).slice(0, 25).forEach((row) => {
+          const ath = row.athlete || {};
+          const id = String(ath.id || "");
+          if (!id) return;
+          const cur = bag[id] || { id, name: ath.displayName || "", team: (ath.team && ath.team.displayName) || "", league: "NHL", pos: "", g: 0, a: 0, pts: 0 };
+          const v = Number(row.value) || 0;
+          if (kind === "g") cur.g = Math.max(cur.g, v);
+          if (kind === "a") cur.a = Math.max(cur.a, v);
+          if (kind === "p") cur.pts = Math.max(cur.pts, v);
+          bag[id] = cur;
+        });
+      });
+      state.hotPlayers = Object.values(bag).map((p) => {
+        p.ga = p.pts || ((p.g || 0) + (p.a || 0));
+        p.league = (p.ga ? (p.ga + " PTS · ") : "") + (p.team || "NHL");
+        p.team = p.team || "";
+        return p;
+      }).filter((p) => p.ga > 0).sort((a, b) => b.ga - a.ga);
+    } catch (e) { state.hotPlayers = []; }
+    if (state.tab === "favs" && !state.q) render();
+  }
+  function renderFavs() {
+    const q = state.q.trim();
+    const local = catalogSearch(q);
+    const remote = [...local, ...state.searchRemote].filter((p, i, arr) => {
+      if (favs().some((x) => String(x.id) === String(p.id))) return false;
+      return arr.findIndex((x) => String(x.id) === String(p.id) || fold(x.name) === fold(p.name)) === i;
+    });
+    const mine = favs().slice().sort((a, b) => {
+      const da = playsToday(a) ? 0 : 1;
+      const db = playsToday(b) ? 0 : 1;
+      if (da !== db) return da - db;
+      return String(a.name).localeCompare(String(b.name));
+    });
+    const results = q.length >= 2 ? remote : [];
+    return `
+      <input class="search" id="playerSearch" placeholder="Rechercher un joueur…" value="${escapeAttr(state.q)}" />
+      ${q.length >= 2 ? `<div id="searchList" style="margin-top:8px">${results.length ? results.slice(0, 20).map((p) => playerRow(p, false)).join("") : `<div class="empty">Aucun résultat.</div>`}</div>` : hotSuggestHtml()}
+      <h2 class="sec">Mes joueurs</h2>
+      ${mine.length ? mine.map((p) => playerRow(p, true)).join("") : `<div class="empty">Aucun favori. Utilise la recherche en haut.</div>`}
+    `;
+  }
+  async function remoteSearch(q) {
+    if (!q || q.trim().length < 2) { state.searchRemote = []; return; }
+    try {
+      const data = await fetchJSON("https://site.web.api.espn.com/apis/search/v2?query=" + encodeURIComponent(q.trim()) + "&limit=20");
+      const contents = ((data.results || []).find((b) => b.type === "player") || {}).contents || [];
+      state.searchRemote = contents.map((c) => {
+        const uid = c.uid || "";
+        if (uid && !uid.includes("s:70")) return null;
+        const id = uid.includes("~a:") ? uid.split("~a:")[1] : "";
+        if (!id) return null;
+        return { id, name: c.displayName || "", team: c.subtitle || "", league: "NHL", pos: "" };
+      }).filter(Boolean);
+    } catch (e) { state.searchRemote = []; }
+    if (state.tab === "favs") {
+      const pos = ($("#playerSearch") || {}).selectionStart;
+      render();
+      const again = document.getElementById("playerSearch");
+      if (again) { again.focus(); if (pos != null) again.setSelectionRange(pos, pos); }
+    }
+  }
+  function addFav(p) {
+    const list = favs();
+    if (list.some((x) => String(x.id) === String(p.id))) { toast("Déjà dans les favoris"); return; }
+    const cat = CATALOG.find((x) => String(x.id) === String(p.id));
+    list.unshift({ id: String(p.id), name: p.name, team: p.team || (cat && cat.team) || "", league: "NHL", pos: p.pos || (cat && cat.pos) || "" });
+    saveJson(LS_FAV, list);
+    toast(p.name + " ajouté");
+    render();
+    refreshOneStat(p.id);
+  }
+  let pendingRm = null;
+  function hideConfirm() {
+    pendingRm = null;
+    const bg = document.getElementById("confirmBg");
+    if (bg) bg.hidden = true;
+  }
+  function removeFav(id) {
+    const p = favs().find((x) => String(x.id) === String(id));
+    pendingRm = String(id);
+    const txt = document.getElementById("confirmTxt");
+    const bg = document.getElementById("confirmBg");
+    if (txt) txt.textContent = "Voulez vous retirer " + ((p && p.name) || "ce joueur") + " des favoris ?";
+    if (bg) bg.hidden = false;
+  }
+  function confirmRemoveFav() {
+    if (!pendingRm) { hideConfirm(); return; }
+    saveJson(LS_FAV, favs().filter((x) => String(x.id) !== String(pendingRm)));
+    hideConfirm();
+    render();
+  }
+  async function refreshOneStat(id) {
+    try {
+      const d = await fetchJSON("https://site.web.api.espn.com/apis/common/v3/sports/hockey/nhl/athletes/" + id + "/overview");
+      const splits = ((d.statistics || {}).splits) || [];
+      const reg = splits.find((s) => /regular/i.test(s.displayName || "")) || splits[0] || {};
+      const stats = reg.stats || [];
+      const goals = Number(stats[1]);
+      const assists = Number(stats[2]);
+      const pts = Number(stats[3]);
+      const cache = cachedStats();
+      const prev = favs().find((p) => String(p.id) === String(id)) || {};
+      cache[id] = {
+        goals: Number.isFinite(goals) ? goals : "–",
+        assists: Number.isFinite(assists) ? assists : "–",
+        ga: Number.isFinite(pts) ? pts : ((Number.isFinite(goals) ? goals : 0) + (Number.isFinite(assists) ? assists : 0)),
+        team: prev.team || "",
+        league: divName(divOf(prev.team)) || "NHL"
+      };
+      saveJson(LS_STATS, cache);
+      if (state.tab === "rank") render();
+    } catch (e) {}
+  }
+  async function refreshAllStats() {
+    await Promise.allSettled(favs().map((p) => refreshOneStat(p.id)));
+  }
+  function playerLeague(p) {
+    return divName(divOf(p.team)) || "NHL";
+  }
+  function rankRow(p, i) {
+    return `
+      <div class="rank">
+        <div class="pos">${i}</div>
+        <div class="rank-id">
+          <div class="pname">${p.name}</div>
+          <div class="pmeta">${[p.team, playerLeague(p)].filter(Boolean).join(" · ")}</div>
+        </div>
+        <div class="ga">
+          <b>${p.ga === -1 || p.ga === undefined ? "–" : p.ga}</b>
+          <span>${p.goals ?? "–"} B · ${p.assists ?? "–"} P</span>
+        </div>
+      </div>`;
+  }
+  function renderRank() {
+    const mine = favs();
+    const stats = cachedStats();
+    const rows = mine.map((p) => {
+      const s = stats[p.id] || { goals: "–", assists: "–", ga: -1 };
+      return { ...p, ...s, gaNum: Number(s.ga) || 0, gNum: Number(s.goals) || 0, aNum: Number(s.assists) || 0 };
+    });
+    const sort = state.rankSort || "ga";
+    if (sort === "goals") rows.sort((a, b) => b.gNum - a.gNum || b.aNum - a.aNum);
+    else if (sort === "assists") rows.sort((a, b) => b.aNum - a.aNum || b.gNum - a.gNum);
+    else if (sort === "league") rows.sort((a, b) => playerLeague(a).localeCompare(playerLeague(b), "fr") || b.gaNum - a.gaNum);
+    else rows.sort((a, b) => b.gaNum - a.gaNum || b.gNum - a.gNum);
+    const chip = (id, label) => `<button class="chip ${sort === id ? "on" : ""}" data-rsort="${id}">${label}</button>`;
+    let body = "";
+    if (!rows.length) body = `<div class="empty">Ajoute des favoris pour voir le classement.</div>`;
+    else if (sort === "league") {
+      let last = "", n = 0;
+      rows.forEach((p) => {
+        const lg = playerLeague(p);
+        if (lg !== last) { body += `<h2 class="sec">${lg}</h2>`; last = lg; n = 0; }
+        n += 1;
+        body += rankRow(p, n);
+      });
+    } else body = rows.map((p, i) => rankRow(p, i + 1)).join("");
+    return `
+      <h2 class="sec">Favoris · saison 2026-2027</h2>
+      <div class="chips" id="rankSort">
+        ${chip("ga", "Points")}
+        ${chip("goals", "Buts")}
+        ${chip("assists", "Passes")}
+        ${chip("league", "Division")}
+      </div>
+      ${body}`;
+  }
+
+  const TK_MARKETS = [
+    ["1","Victoire 1"],
+    ["2","Victoire 2"],
+    ["1N","Double chance 1N"],
+    ["N2","Double chance N2"],
+    ["over55","+5,5 buts"],
+    ["over65","+6,5 buts"],
+    ["buteur","Buteur"],
+    ["passeur","Passeur"],
+    ["dc_buteur","Double chance buteur"],
+    ["decisif","Joueur décisif"],
+  ];
+  function marketLabel(id) { return (TK_MARKETS.find((x) => x[0] === id) || [id, id])[1]; }
+  function playerHit(m, pid, name, goal, assist) {
+    const pn = fold(name || "");
+    return (m.scorers || []).some((s) => {
+      if (s.kind === "so") return false;
+      const g = goal && ((pid && String(s.scorerId) === String(pid)) || (pn && fold(s.scorer || "").includes(pn)));
+      const a = assist && (
+        (pid && (String(s.assistId) === String(pid) || String(s.assist2Id) === String(pid))) ||
+        (pn && (fold(s.assist || "").includes(pn) || fold(s.assist2 || "").includes(pn)))
+      );
+      return g || a;
+    });
+  }
+  function evalTicket(tk, m) {
+    if (!m) return "open";
+    const mk = tk.market || tk.pick || "";
+    const hs = Number(m.home.score) || 0;
+    const as = Number(m.away.score) || 0;
+    const tot = hs + as;
+    const done = !!m.isDone;
+    const win = (ok) => ok ? "won" : (done ? "lost" : "open");
+    if (mk === "1") return win(done && hs > as);
+    if (mk === "N") return win(done && hs === as);
+    if (mk === "2") return win(done && as > hs);
+    if (mk === "1N") return win(done && hs >= as);
+    if (mk === "N2") return win(done && as >= hs);
+    if (mk === "over55") return tot >= 6 ? "won" : (done ? "lost" : "open");
+    if (mk === "over65") return tot >= 7 ? "won" : (done ? "lost" : "open");
+    if (mk === "buteur") return win(playerHit(m, tk.playerId, tk.playerName, true, false));
+    if (mk === "passeur") return win(playerHit(m, tk.playerId, tk.playerName, false, true));
+    if (mk === "decisif") return win(playerHit(m, tk.playerId, tk.playerName, true, true));
+    if (mk === "dc_buteur") {
+      const a = playerHit(m, tk.playerId, tk.playerName, true, false);
+      const b = playerHit(m, tk.playerId2, tk.playerName2, true, false);
+      return win(a || b);
+    }
+    return tk.status || "open";
+  }
+  function settleTickets(matches) {
+    const list = tickets();
+    let ch = false;
+    list.forEach((tk) => {
+      const m = (matches || state.matches).find((x) => String(x.id) === String(tk.matchId));
+      const st = evalTicket(tk, m);
+      if (st !== tk.status) { tk.status = st; ch = true; }
+    });
+    if (ch) saveTickets(list);
+  }
+  function ticketMark(tk) {
+    if (tk.status === "won") return "✅";
+    if (tk.status === "lost") return "❌";
+    return "⏳";
+  }
+  function renderParis() {
+    const ms = state.matches.slice();
+    const list = tickets().slice().reverse();
+    const mk = state.betMarket || "1";
+    const needP = ["buteur","passeur","decisif","dc_buteur"].includes(mk);
+    const opts = ms.map((m) => `<option value="${m.id}" ${String(state.betMatch||"")===String(m.id)?"selected":""}>${m.home.name} – ${m.away.name}</option>`).join("");
+    const pOpts = `<option value="">Joueur favori…</option>` + favs().map((p) => `<option value="${p.id}">${p.name}</option>`).join("");
+    return `
+      <h2 class="sec">Nouveau pari</h2>
+      <label class="field">Match</label>
+      <select id="tkMatch"><option value="">Choisir un match du jour…</option>${opts}</select>
+      <div class="chips wrap" style="margin:8px 0">
+        ${TK_MARKETS.map(([id,lab]) => `<button class="chip ${mk===id?"on":""}" data-tkpick="${id}">${lab}</button>`).join("")}
+      </div>
+      ${needP ? `<select id="tkPlayer">${pOpts}</select>` : ""}
+      ${mk==="dc_buteur" ? `<select id="tkPlayer2" style="margin-top:8px">${pOpts}</select>` : ""}
+      <button class="btn" id="tkAdd" style="width:100%;margin-top:8px">Ajouter le pari</button>
+      <h2 class="sec">Mes tickets</h2>
+      ${list.length ? list.map((tk) => {
+        const m = ms.find((x) => String(x.id)===String(tk.matchId));
+        const title = m ? (m.home.name + " " + (m.home.score??"") + "–" + (m.away.score??"") + " " + m.away.name) : (tk.matchName || "Match");
+        return `<article class="bet"><div class="bet-top"><b>${ticketMark(tk)} ${title}</b><button class="trash" data-tkdel="${tk.id}">🗑</button></div>
+          <div class="pmeta">${marketLabel(tk.market || tk.pick)}${tk.playerName ? " · "+tk.playerName : ""}${tk.playerName2 ? " / "+tk.playerName2 : ""}</div></article>`;
+      }).join("") : `<div class="empty">Aucun pari. Choisis un match et décris le ticket.</div>`}`;
+  }
+
+  function notifyFavDecisive(m) {
+    if (!getSettings().notifFavGoals) return;
+    const last = (m.scorers || [])[(m.scorers || []).length - 1];
+    if (!last || last.kind === "so") return;
+    const scorerFav = isFavPlayer(last.scorerId, last.scorer);
+    const assistFav = isFavPlayer(last.assistId, last.assist) || isFavPlayer(last.assist2Id, last.assist2);
+    if (!scorerFav && !assistFav) return;
+    const role = scorerFav ? "Buteur" : "Passeur";
+    const who = scorerFav ? last.scorer : (isFavPlayer(last.assistId, last.assist) ? last.assist : last.assist2);
+    const score = m.home.name + " " + m.home.score + "–" + m.away.score + " " + m.away.name;
+    const title = who + " · " + role;
+    const body = score + (last.minute ? " · " + last.minute : "");
+    const tag = "dec-" + m.id + "-" + m.home.score + "-" + m.away.score + "-" + role;
+    if (!state.notifDone) state.notifDone = {};
+    if (state.notifDone[tag]) return;
+    state.notifDone[tag] = Date.now();
+    toast(title + " · " + body);
+    if (!("Notification" in window) || Notification.permission !== "granted") return;
+    try { new Notification(title, { body, tag }); } catch (e) {}
+  }
+  async function enableFavNotifs() {
+    if (!("Notification" in window)) { toast("Notifs indisponibles ici"); return false; }
+    if (Notification.permission === "granted") return true;
+    try { return (await Notification.requestPermission()) === "granted"; }
+    catch { return false; }
+  }
+  function playGoalSound() {
+    if (!getSettings().soundGoals) return;
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      if (!playGoalSound.ctx) playGoalSound.ctx = new Ctx();
+      const ctx = playGoalSound.ctx;
+      if (ctx.state === "suspended") ctx.resume();
+      const vol = Math.max(0, Math.min(1, (Number(getSettings().soundVol) || 70) / 100)) * 0.22;
+      const t0 = ctx.currentTime;
+      const master = ctx.createGain();
+      master.gain.value = vol;
+      master.connect(ctx.destination);
+      const note = (freq, start, dur, type, gain) => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = type || "sawtooth";
+        o.frequency.setValueAtTime(freq, t0 + start);
+        g.gain.setValueAtTime(0.0001, t0 + start);
+        g.gain.exponentialRampToValueAtTime(gain || 1, t0 + start + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + start + dur);
+        o.connect(g); g.connect(master);
+        o.start(t0 + start);
+        o.stop(t0 + start + dur + 0.02);
+      };
+      note(392, 0.00, 0.11, "sawtooth", 0.9);
+      note(494, 0.11, 0.11, "sawtooth", 1.0);
+      note(587, 0.22, 0.13, "sawtooth", 1.1);
+      note(784, 0.35, 0.55, "sawtooth", 1.2);
+      note(784, 0.35, 0.55, "square", 0.25);
+    } catch (e) {}
+  }
+  function detectGoals(matches) {
+    const now = Date.now();
+    let flash = false;
+    matches.forEach((m) => {
+      const key = String(m.home.score) + "-" + String(m.away.score);
+      const prev = state.scoreSnap[m.id];
+      state.scoreSnap[m.id] = key;
+      if (prev == null || prev === key) return;
+      const [ph, pa] = prev.split("-").map((n) => Number(n) || 0);
+      const nh = Number(m.home.score) || 0;
+      const na = Number(m.away.score) || 0;
+      if (nh + na > ph + pa) {
+        state.goalUntil[m.id] = now + 5000;
+        const last = (m.scorers || [])[(m.scorers || []).length - 1];
+        state.goalScorer[m.id] = last ? (last.scorer || "") : "";
+        state.goalFavHit[m.id] = !!(last && isFavPlayer(last.scorerId, last.scorer));
+        flash = true;
+        if (getSettings().vibrateGoals && isMatchFav(m.id) && navigator.vibrate) navigator.vibrate([35, 40, 35]);
+        if (isMatchFav(m.id)) playGoalSound();
+        try { notifyFavDecisive(m); } catch (e) {}
+      }
+    });
+    if (flash) {
+      clearTimeout(detectGoals._t);
+      clearTimeout(detectGoals._t2);
+      detectGoals._t = setTimeout(() => { if (state.tab === "matches") keepScroll(() => render()); }, 5200);
+      if (getSettings().buuutShowScorer) {
+        detectGoals._t2 = setTimeout(() => { if (state.tab === "matches") keepScroll(() => render()); }, 2500);
+      }
+    }
+  }
+  function launchTestMatch() {
+    const m = {
+      id: "demo-edm-col",
+      leagueId: "nhl",
+      league: "NHL",
+      date: new Date().toISOString(),
+      isLive: true,
+      isHT: false,
+      isDone: false,
+      clock: "12:04 2e",
+      period: 2,
+      home: { id: "22", name: "Edmonton Oilers", full: "Edmonton Oilers", score: 1, logo: "https://a.espncdn.com/i/teamlogos/nhl/500/edm.png", record: "", form: "" },
+      away: { id: "17", name: "Colorado Avalanche", full: "Colorado Avalanche", score: 1, logo: "https://a.espncdn.com/i/teamlogos/nhl/500/col.png", record: "", form: "" },
+      scorers: [
+        { minute: "8:12 1er", period: 1, kind: "but", scorer: "Nathan MacKinnon", scorerId: "3041969", assist: "Cale Makar", assistId: "4233563", assist2: "", assist2Id: "", teamId: "17" },
+        { minute: "4:40 2e", period: 2, kind: "pp", scorer: "Leon Draisaitl", scorerId: "3114727", assist: "Connor McDavid", assistId: "3895074", assist2: "", assist2Id: "", teamId: "22" },
+      ],
+    };
+    state.demoFavNames = ["Connor McDavid", "Nathan MacKinnon"];
+    state.matches = [m].concat(state.matches.filter((x) => x.id !== m.id));
+    if (!isMatchFav(m.id)) toggleMatchFav(m.id);
+    state.scoreSnap[m.id] = "1-1";
+    state.goalUntil[m.id] = 0;
+    state.detailId = null;
+    state.tab = "matches";
+    document.querySelectorAll("nav.tabs button").forEach((b) => b.classList.toggle("on", b.dataset.tab === "matches"));
+    render();
+    toast("Match test 1-1 — but dans 3 s");
+    clearTimeout(launchTestMatch._goal);
+    launchTestMatch._goal = setTimeout(() => {
+      const cur = state.matches.find((x) => x.id === "demo-edm-col");
+      if (!cur) return;
+      cur.home.score = 2;
+      cur.scorers.push({ minute: "12:04 2e", period: 2, kind: "but", scorer: "Connor McDavid", scorerId: "3895074", assist: "Leon Draisaitl", assistId: "3114727", assist2: "", assist2Id: "", teamId: "22" });
+      state.goalUntil[cur.id] = Date.now() + 5000;
+      state.goalScorer[cur.id] = "Connor McDavid";
+      state.goalFavHit[cur.id] = true;
+      if (getSettings().soundGoals) playGoalSound();
+      if (getSettings().vibrateGoals && navigator.vibrate) navigator.vibrate([35, 40, 35]);
+      if (state.tab === "matches") keepScroll(() => render());
+      setTimeout(() => { if (state.tab === "matches") keepScroll(() => render()); }, 5200);
+      if (getSettings().buuutShowScorer) setTimeout(() => { if (state.tab === "matches") keepScroll(() => render()); }, 2500);
+    }, 3000);
+  }
+
+  function exportPayload() {
+    return { v: 1, app: "cracks", at: Date.now(), favs: loadJson(LS_FAV, []), matchFavs: loadJson(LS_MATCH_FAV, []), settings: loadJson(LS_SETTINGS, {}) };
+  }
+  function applyBackup(data) {
+    if (!data || data.app !== "cracks" || !Array.isArray(data.favs)) throw new Error("fichier invalide");
+    const favsNow = loadJson(LS_FAV, []);
+    const seen = new Set(favsNow.map((p) => String(p.id)));
+    const merged = favsNow.slice();
+    data.favs.forEach((p) => {
+      if (!p || p.id == null) return;
+      if (!seen.has(String(p.id))) { seen.add(String(p.id)); merged.push(p); }
+    });
+    const stars = new Set([].concat(loadJson(LS_MATCH_FAV, []), data.matchFavs || []).map(String));
+    saveJson(LS_FAV, merged);
+    saveJson(LS_MATCH_FAV, [...stars]);
+    if (data.settings && typeof data.settings === "object") saveJson(LS_SETTINGS, Object.assign(loadJson(LS_SETTINGS, {}), data.settings));
+  }
+  function renderSettings() {
+    const s = getSettings();
+    return `
+      <h2 class="sec">Réglages</h2>
+      <article class="bet"><div class="bet-top"><div><div class="pname">Vibration sur but</div><div class="pmeta">Légère vibration du téléphone à chaque but détecté</div></div>
+        <button class="toggle ${s.vibrateGoals ? "on" : ""}" id="togVibrate">${s.vibrateGoals ? "ON" : "OFF"}</button></div></article>
+      <article class="bet"><div class="bet-top"><div><div class="pname">Sigles de division</div><div class="pmeta">Dans Matchs, le nom de division est remplacé par son sigle</div></div>
+        <button class="toggle ${s.flagsLeagues ? "on" : ""}" id="togFlags">${s.flagsLeagues ? "ON" : "OFF"}</button></div></article>
+      <article class="bet"><div class="bet-top"><div><div class="pname">BUUUT! orange si favori</div><div class="pmeta">L’animation passe en orange quand c’est un de tes joueurs</div></div>
+        <button class="toggle ${s.buuutOrangeFav ? "on" : ""}" id="togBuuutOrange">${s.buuutOrangeFav ? "ON" : "OFF"}</button></div></article>
+      <article class="bet"><div class="bet-top"><div><div class="pname">Nom du buteur après BUUUT!</div><div class="pmeta">2,5 s BUUUT! puis 2,5 s le nom</div></div>
+        <button class="toggle ${s.buuutShowScorer ? "on" : ""}" id="togBuuutName">${s.buuutShowScorer ? "ON" : "OFF"}</button></div></article>
+      <button class="btn" id="btnTestMatch" style="width:100%;margin:4px 0 12px">Lancer le match test Oilers – Avalanche</button>
+      <article class="bet"><div class="bet-top"><div><div class="pname">Son de but</div><div class="pmeta">Sting sur un but d’un match favori</div></div>
+        <button class="toggle ${s.soundGoals ? "on" : ""}" id="togSound">${s.soundGoals ? "ON" : "OFF"}</button></div>
+        ${s.soundGoals ? `<div class="vol-row"><span>Volume</span><input id="soundVol" type="range" min="10" max="100" value="${s.soundVol || 70}"/><b>${s.soundVol || 70}</b></div>` : ""}
+      </article>
+      <article class="bet"><div class="bet-top"><div><div class="pname">Notif favori décisif</div><div class="pmeta">Buteur ou passeur + score et temps. Marche surtout si l’app est ouverte.</div></div>
+        <button class="toggle ${s.notifFavGoals ? "on" : ""}" id="togNotifFav">${s.notifFavGoals ? "ON" : "OFF"}</button></div></article>
+      <h2 class="sec">Divisions affichées</h2>
+      <article class="bet">
+        <button type="button" class="lg-fold" id="lgFold"><span>${(s.enabledLeagues ? s.enabledLeagues.length : LEAGUES.length)}/${LEAGUES.length} affichées</span><span>${state.lgOpen ? "Fermer" : "Choisir"}</span></button>
+        ${state.lgOpen ? `<div class="chips wrap" style="margin-top:10px">${LEAGUES.map((l) => {
+          const on = !s.enabledLeagues || s.enabledLeagues.includes(l.id);
+          return `<button type="button" class="chip ${on ? "on" : ""}" data-lgvis="${l.id}">${l.short}</button>`;
+        }).join("")}</div>` : ""}
+      </article>
+      <h2 class="sec">Sauvegarde</h2>
+      <article class="bet">
+        <div class="pname">Exporter / importer</div>
+        <div class="pmeta" style="margin:6px 0 10px">Favoris, matchs étoilés et réglages.</div>
+        <div class="actions" style="margin-top:8px">
+          <button class="btn sm" id="btnExport">Exporter</button>
+          <button class="btn sm ghost" id="btnCopyBackup">Copier</button>
+          <button class="btn sm ghost" id="btnImportFile">Fichier…</button>
+        </div>
+        <textarea id="backupBox" class="backup-box" rows="4" placeholder="Colle ici un export Cracks"></textarea>
+        <button class="btn" id="btnImportText" style="width:100%;margin-top:8px">Importer</button>
+        <input id="backupFile" type="file" accept="application/json,.json,.txt" hidden/>
+      </article>`;
+  }
+
+  function render() {
+    if (state.tab === "matches") main.innerHTML = renderMatches();
+    else if (state.tab === "favs") main.innerHTML = renderFavs();
+    else if (state.tab === "bets") main.innerHTML = renderParis();
+    else if (state.tab === "rank") main.innerHTML = renderRank();
+    else main.innerHTML = renderSettings();
+    bind();
+  }
+  function bind() {
+    $("#dPrev")?.addEventListener("click", () => { state.date = new Date(state.date.getTime() - 86400000); loadMatches(); });
+    $("#dNext")?.addEventListener("click", () => { state.date = new Date(state.date.getTime() + 86400000); loadMatches(); });
+    $("#leagueChips")?.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-lg]");
+      if (!btn) return;
+      state.league = btn.dataset.lg;
+      loadMatches();
+    });
+    main.querySelectorAll("[data-star]").forEach((btn) => {
+      btn.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); toggleMatchFav(btn.dataset.star); });
+    });
+    document.getElementById("backMatches")?.addEventListener("click", () => { state.detailId = null; render(); });
+    if (!state.detailId) {
+      main.querySelectorAll("article.match").forEach((el) => {
+        el.addEventListener("click", () => {
+          state.detailId = el.dataset.mid;
+          render();
+          const m = state.matches.find((x) => String(x.id) === String(state.detailId));
+          if (m) loadMatchDetail(m);
+        });
+      });
+    }
+    const search = $("#playerSearch");
+    if (search) {
+      search.addEventListener("input", (e) => {
+        state.q = e.target.value;
+        const pos = e.target.selectionStart;
+        render();
+        const again = document.getElementById("playerSearch");
+        if (again) { again.focus(); again.setSelectionRange(pos, pos); }
+        clearTimeout(bind._t);
+        bind._t = setTimeout(() => remoteSearch(state.q), 280);
+      });
+    }
+    main.querySelectorAll("[data-hide]").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const id = String(btn.dataset.hide);
+        const list = loadJson(LS_HIDE_SUG, []);
+        if (!list.map(String).includes(id)) list.push(id);
+        saveJson(LS_HIDE_SUG, list);
+        render();
+      });
+    });
+    main.querySelectorAll("[data-add]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.add;
+        const p = [...CATALOG, ...state.searchRemote, ...(state.hotPlayers || []), ...favs()].find((x) => String(x.id) === id);
+        if (p) addFav(p);
+      });
+    });
+    main.querySelectorAll("[data-rm]").forEach((btn) => btn.addEventListener("click", () => removeFav(btn.dataset.rm)));
+    document.getElementById("rankSort")?.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-rsort]");
+      if (!btn) return;
+      state.rankSort = btn.dataset.rsort;
+      render();
+    });
+    document.querySelectorAll("[data-tkpick]").forEach((b) => b.addEventListener("click", () => { state.betMarket = b.dataset.tkpick; render(); }));
+    document.getElementById("tkMatch")?.addEventListener("change", (e) => { state.betMatch = e.target.value; });
+    document.getElementById("tkAdd")?.addEventListener("click", () => {
+      const mid = document.getElementById("tkMatch")?.value;
+      const mk = state.betMarket || "1";
+      if (!mid) { toast("Choisis un match"); return; }
+      const needP = ["buteur","passeur","decisif","dc_buteur"].includes(mk);
+      const pid = document.getElementById("tkPlayer")?.value || "";
+      const pid2 = document.getElementById("tkPlayer2")?.value || "";
+      if (needP && !pid) { toast("Choisis un joueur"); return; }
+      if (mk === "dc_buteur" && !pid2) { toast("Choisis le 2e joueur"); return; }
+      const m = state.matches.find((x) => String(x.id)===String(mid));
+      const p1 = favs().find((x) => String(x.id)===String(pid));
+      const p2 = favs().find((x) => String(x.id)===String(pid2));
+      const list = tickets();
+      list.push({
+        id: Date.now().toString(36), matchId: mid,
+        matchName: m ? (m.home.name + " – " + m.away.name) : "",
+        market: mk, pick: mk, playerId: pid, playerId2: pid2,
+        playerName: p1 ? p1.name : "", playerName2: p2 ? p2.name : "",
+        label: marketLabel(mk), status: "open",
+      });
+      saveTickets(list);
+      settleTickets(state.matches);
+      toast("Pari ajouté");
+      render();
+    });
+    main.querySelectorAll("[data-tkdel]").forEach((b) => b.addEventListener("click", (e) => {
+      e.stopPropagation();
+      saveTickets(tickets().filter((x) => String(x.id) !== String(b.dataset.tkdel)));
+      render();
+    }));
+    document.getElementById("togVibrate")?.addEventListener("click", () => {
+      const next = !getSettings().vibrateGoals;
+      setSetting("vibrateGoals", next);
+      if (next && navigator.vibrate) navigator.vibrate(25);
+      render();
+    });
+    document.getElementById("togBuuutOrange")?.addEventListener("click", () => { setSetting("buuutOrangeFav", !getSettings().buuutOrangeFav); render(); });
+    document.getElementById("togBuuutName")?.addEventListener("click", () => { setSetting("buuutShowScorer", !getSettings().buuutShowScorer); render(); });
+    document.getElementById("btnTestMatch")?.addEventListener("click", () => launchTestMatch());
+    document.getElementById("togSound")?.addEventListener("click", () => {
+      const next = !getSettings().soundGoals;
+      setSetting("soundGoals", next);
+      if (next) playGoalSound();
+      render();
+    });
+    document.getElementById("soundVol")?.addEventListener("input", (e) => {
+      setSetting("soundVol", Number(e.target.value) || 70);
+      const lab = e.target.parentElement.querySelector("b");
+      if (lab) lab.textContent = String(e.target.value);
+    });
+    document.getElementById("soundVol")?.addEventListener("change", () => playGoalSound());
+    document.getElementById("togFlags")?.addEventListener("click", () => { setSetting("flagsLeagues", !getSettings().flagsLeagues); render(); });
+    document.getElementById("togNotifFav")?.addEventListener("click", async () => {
+      const next = !getSettings().notifFavGoals;
+      if (next) await enableFavNotifs();
+      setSetting("notifFavGoals", next);
+      render();
+    });
+    document.getElementById("lgFold")?.addEventListener("click", () => { state.lgOpen = !state.lgOpen; render(); });
+    main.querySelectorAll("[data-lgvis]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.lgvis;
+        const allIds = LEAGUES.map((l) => l.id);
+        let cur = getSettings().enabledLeagues;
+        if (!cur) cur = allIds.slice();
+        cur = cur.filter((x) => allIds.includes(x));
+        if (cur.includes(id)) cur = cur.filter((x) => x !== id);
+        else cur.push(id);
+        if (!cur.length) cur = allIds.slice();
+        setSetting("enabledLeagues", cur);
+        if (state.league !== "all" && !cur.includes(state.league)) state.league = "all";
+        render();
+      });
+    });
+    document.getElementById("btnExport")?.addEventListener("click", () => {
+      const json = JSON.stringify(exportPayload());
+      const box = document.getElementById("backupBox");
+      if (box) box.value = json;
+      try {
+        const blob = new Blob([json], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "cracks-sauvegarde.json";
+        a.click();
+        URL.revokeObjectURL(a.href);
+      } catch (e) {}
+      toast("Export prêt");
+    });
+    document.getElementById("btnCopyBackup")?.addEventListener("click", async () => {
+      const json = JSON.stringify(exportPayload());
+      const box = document.getElementById("backupBox");
+      if (box) box.value = json;
+      try { await navigator.clipboard.writeText(json); toast("Copié"); }
+      catch { toast("Sélectionne le texte et copie"); }
+    });
+    document.getElementById("btnImportFile")?.addEventListener("click", () => document.getElementById("backupFile")?.click());
+    document.getElementById("backupFile")?.addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try { applyBackup(JSON.parse(String(reader.result || ""))); toast("Import OK"); render(); }
+        catch { toast("Fichier invalide"); }
+      };
+      reader.readAsText(file);
+    });
+    document.getElementById("btnImportText")?.addEventListener("click", () => {
+      try { applyBackup(JSON.parse(document.getElementById("backupBox")?.value || "")); toast("Import OK"); render(); }
+      catch { toast("Code invalide"); }
+    });
+  }
+
+  document.querySelectorAll("nav.tabs button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.tab = btn.dataset.tab;
+      state.detailId = null;
+      document.querySelectorAll("nav.tabs button").forEach((b) => b.classList.toggle("on", b === btn));
+      render();
+      if (state.tab === "rank") refreshAllStats();
+      if (state.tab === "matches") loadMatches();
+      if (state.tab === "bets" && !state.matches.length) loadMatches({ silent: true });
+      if (state.tab === "favs") {
+        loadHotPlayers();
+        if (!state.matches.length) loadMatches({ silent: true });
+      }
+    });
+  });
+  document.getElementById("confirmNo")?.addEventListener("click", hideConfirm);
+  document.getElementById("confirmYes")?.addEventListener("click", confirmRemoveFav);
+  document.getElementById("confirmBg")?.addEventListener("click", (e) => { if (e.target.id === "confirmBg") hideConfirm(); });
+
+  setTimeout(() => { const sp = document.getElementById("splash"); if (sp) sp.classList.add("hide-title"); }, 1300);
+  setTimeout(() => { const sp = document.getElementById("splash"); if (sp) sp.classList.add("through"); }, 2500);
+  setTimeout(() => { const sp = document.getElementById("splash"); if (sp) sp.remove(); }, 2900);
+
+  loadMatches();
+  refreshAllStats();
+  loadHotPlayers();
+  setInterval(() => { if (state.tab === "matches") loadMatches({ silent: true }); }, 60000);
+})();
+
+</script>
+</body>
+</html>
